@@ -1,19 +1,37 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Regressão Visual', () => {
-    test('Deve manter o layout do Dashboard consistente', async ({ page }) => {
-        await page.goto('http://localhost:5173');
+  test('Deve manter o layout do Dashboard consistente', async ({ page }) => {
 
-        const maskStyle = `
-      [data-testid="dynamic-time"], 
-      [data-testid="dynamic-id"] {
-        visibility: hidden; /* Ou background: black */
-      }
-    `;
-        await page.addStyleTag({ content: maskStyle });
+    await page.goto('/');
 
-        await expect(page).toHaveScreenshot('dashboard-page.png', {
-            maxDiffPixelRatio: 0.02,
-        });
+    
+    await page.waitForLoadState('networkidle');
+
+    
+    await page.addStyleTag({
+      content: `
+        * {
+          animation: none !important;
+          transition: none !important;
+          caret-color: transparent !important;
+        }
+      `,
     });
+
+    await page.addStyleTag({
+      content: `
+        [data-testid="dynamic-time"],
+        [data-testid="dynamic-id"] {
+          visibility: hidden;
+        }
+      `,
+    });
+
+    await expect(page).toHaveScreenshot('dashboard-page.png', {
+      fullPage: true,
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.02,
+    });
+  });
 });
